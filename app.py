@@ -134,6 +134,14 @@ app.layout = dbc.Container([
             html.Br(),
             html.Div(id="pv-config-summary"),
             html.Br(),
+            html.H6("Periode for solcellevejr"),
+            dcc.DatePickerRange(
+                id='pv-date-picker-range',
+                start_date=datetime.now()-timedelta(days=30),
+                end_date=datetime.now(),
+                display_format="YYYY-MM-DD"
+            ),
+            html.Br(),
             dbc.Button("Simulér produktion",
                        id="simulate-pv-button", n_clicks=0, color="primary"),
             html.Br(),
@@ -292,8 +300,8 @@ def save_pv_configuration(n_clicks, pv_size, orientation, battery_size):
     State('input-address', 'value'),
     State('input-pv-size', 'value'),
     State('dropdown-orientation', 'value'),
-    State('date-picker-range', 'start_date'),
-    State('date-picker-range', 'end_date'),
+    State('pv-date-picker-range', 'start_date'),
+    State('pv-date-picker-range', 'end_date'),
     prevent_initial_call=True
 )
 def simulate_pv(n_clicks, address, pv_size, orientation, start_date, end_date):
