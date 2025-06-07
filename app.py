@@ -85,7 +85,7 @@ app.layout = dbc.Container([
     dcc.Store(id='eloverblik_selected_metering_point'),
     dcc.Store(id='eloverblik_consumption_data'),
     dcc.Store(id='eloverblik_production_data'),
-    dcc.Store(id='pv_configuration'),
+    dcc.Store(id='pv_configuration', storage_type='local'),
     dcc.Store(id='pv_production_data'),
 
     html.Br(),
@@ -291,6 +291,26 @@ def save_pv_configuration(n_clicks, pv_size, orientation, battery_size):
         )
         return data, summary
     return dash.no_update, dash.no_update
+
+
+@app.callback(
+    Output('input-pv-size', 'value'),
+    Output('dropdown-orientation', 'value'),
+    Output('input-battery-size', 'value'),
+    Output('pv-config-summary', 'children'),
+    Input('pv_configuration', 'data')
+)
+def load_pv_configuration(data):
+    if data:
+        pv_size = data.get('pv_size_kw')
+        orientation = data.get('orientation')
+        battery_size = data.get('battery_size_kwh')
+        summary = dbc.Alert(
+            f"Gemte solcelleinfo: {pv_size} kW, {orientation}, {battery_size} kWh",
+            color='success'
+        )
+        return pv_size, orientation, battery_size, summary
+    return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
 
 @app.callback(
