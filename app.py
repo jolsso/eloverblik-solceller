@@ -86,6 +86,7 @@ app.layout = dbc.Container([
     dcc.Store(id='eloverblik_consumption_data'),
     dcc.Store(id='eloverblik_production_data'),
     dcc.Store(id='pv_configuration'),
+    dcc.Store(id='pv_production_data'),
 
     html.Br(),
 
@@ -123,10 +124,21 @@ app.layout = dbc.Container([
                 ),
             ]),
             html.Br(),
+            dbc.InputGroup([
+                dbc.InputGroupText("Adresse"),
+                dbc.Input(id="input-address", type="text", placeholder="F.eks. 'Gothersgade 1, København'")
+            ]),
+            html.Br(),
             dbc.Button("Gem solcelleinfo",
                        id="save-pv-button", n_clicks=0, color="secondary"),
             html.Br(),
-            html.Div(id="pv-config-summary")
+            html.Div(id="pv-config-summary"),
+            html.Br(),
+            dbc.Button("Simulér produktion",
+                       id="simulate-pv-button", n_clicks=0, color="primary"),
+            html.Br(),
+            dcc.Loading(id='pv-production-result', children=[dbc.Alert(
+                "Resultat vises her efter beregning", color="info")])
         ])
     ]),
 
@@ -270,6 +282,27 @@ def save_pv_configuration(n_clicks, pv_size, orientation, battery_size):
             color='success'
         )
         return data, summary
+    return dash.no_update, dash.no_update
+
+
+@app.callback(
+    Output('pv-production-result', 'children'),
+    Output('pv_production_data', 'data'),
+    Input('simulate-pv-button', 'n_clicks'),
+    State('input-address', 'value'),
+    State('input-pv-size', 'value'),
+    State('dropdown-orientation', 'value'),
+    State('date-picker-range', 'start_date'),
+    State('date-picker-range', 'end_date'),
+    prevent_initial_call=True
+)
+def simulate_pv(n_clicks, address, pv_size, orientation, start_date, end_date):
+    if n_clicks and address and pv_size and orientation:
+        df = simulate_pv_production(address, start_date, end_date,
+                                    pv_size, orientation)
+        df_daily = df.resample('D').sum()
+        fig = px.line(df_daily, y='P', labels={'P': 'kWh'})
+        return dcc.Graph(figure=fig), df.to_json(date_format='iso')
     return dash.no_update, dash.no_update
 
 

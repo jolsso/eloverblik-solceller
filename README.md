@@ -1,6 +1,8 @@
 # eloverblik-solceller
 Estimering af solcelle business case ud fra eloverblik data
 
+Nu kan applikationen også estimere solcelleproduktion for en valgfri adresse i Danmark ved hjælp af data fra EU's PVGIS tjeneste.
+
 ## Docker
 
 Byg og kør applikationen i en Docker container:
