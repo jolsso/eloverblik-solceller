@@ -2,7 +2,6 @@ dash
 pandas
 plotly
 numpy
-dash
 dash-bootstrap-components
 pyeloverblik
 urllib3>=1.26
