@@ -1,7 +1,6 @@
 from functions import *
 from datetime import datetime, timedelta
 import dash
-import numpy as np
 from dash import html, dcc, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc
 import plotly.express as px
