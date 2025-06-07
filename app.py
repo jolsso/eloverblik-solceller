@@ -85,6 +85,50 @@ app.layout = dbc.Container([
     dcc.Store(id='eloverblik_selected_metering_point'),
     dcc.Store(id='eloverblik_consumption_data'),
     dcc.Store(id='eloverblik_production_data'),
+    dcc.Store(id='pv_configuration'),
+
+    html.Br(),
+
+    dbc.Card([
+        dbc.CardHeader("Indtast solcelle- og batterioplysninger"),
+        dbc.CardBody([
+            dbc.Row([
+                dbc.Col(
+                    dbc.InputGroup([
+                        dbc.InputGroupText("Solcelle størrelse (kW)"),
+                        dbc.Input(id="input-pv-size", type="number", min=0)
+                    ]),
+                    md=4
+                ),
+                dbc.Col(
+                    dbc.InputGroup([
+                        dbc.InputGroupText("Placering"),
+                        dcc.Dropdown(
+                            id="dropdown-orientation",
+                            options=[
+                                {"label": o, "value": o}
+                                for o in ["Syd", "Øst", "Vest", "Syd-Øst", "Syd-Vest"]
+                            ],
+                            placeholder="Vælg orientering"
+                        )
+                    ]),
+                    md=4
+                ),
+                dbc.Col(
+                    dbc.InputGroup([
+                        dbc.InputGroupText("Batteri størrelse (kWh)"),
+                        dbc.Input(id="input-battery-size", type="number", min=0)
+                    ]),
+                    md=4
+                ),
+            ]),
+            html.Br(),
+            dbc.Button("Gem solcelleinfo",
+                       id="save-pv-button", n_clicks=0, color="secondary"),
+            html.Br(),
+            html.Div(id="pv-config-summary")
+        ])
+    ]),
 
     html.Br(),
 
@@ -203,6 +247,30 @@ def get_eloverblik_raw_data_2(selected_metering_point, start_date, end_date, tok
         graph = dcc.Graph(figure=fig)
         
     return graph
+
+
+@ app.callback(
+    Output('pv_configuration', 'data'),
+    Output('pv-config-summary', 'children'),
+    Input('save-pv-button', 'n_clicks'),
+    State('input-pv-size', 'value'),
+    State('dropdown-orientation', 'value'),
+    State('input-battery-size', 'value'),
+    prevent_initial_call=True
+)
+def save_pv_configuration(n_clicks, pv_size, orientation, battery_size):
+    if n_clicks:
+        data = {
+            'pv_size_kw': pv_size,
+            'orientation': orientation,
+            'battery_size_kwh': battery_size
+        }
+        summary = dbc.Alert(
+            f"Gemte solcelleinfo: {pv_size} kW, {orientation}, {battery_size} kWh",
+            color='success'
+        )
+        return data, summary
+    return dash.no_update, dash.no_update
 
 
 # @app.callback(
