@@ -169,6 +169,9 @@ def simulate_pv_production(address, start_date, end_date, pv_size_kw, orientatio
 
     start_year = pd.to_datetime(start_date).year
     end_year = pd.to_datetime(end_date).year
+    # Clamp years to the range allowed by PVGIS (2005-2020)
+    start_year = min(max(start_year, 2005), 2020)
+    end_year = min(max(end_year, 2005), 2020)
 
     url = (
         "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?"
