@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 from pyeloverblik import Eloverblik
+from geopy.geocoders import Nominatim
 
 
 # def fetch_eloverblik_dataframe(days=365):
@@ -145,3 +146,43 @@ def get_metering_charges(token, metering_point_id):
         charges_data, headers=headers, json=meter_json)
 
     return charges_data_request.json()['result']
+
+
+def _geocode_address(address):
+    geolocator = Nominatim(user_agent="eloverblik-solceller")
+    location = geolocator.geocode(address)
+    if location is None:
+        raise Exception("Kunne ikke finde adressen")
+    return location.latitude, location.longitude
+
+
+def simulate_pv_production(address, start_date, end_date, pv_size_kw, orientation="Syd", tilt=35):
+    lat, lon = _geocode_address(address)
+    orientation_map = {
+        "Syd": 180,
+        "Øst": 90,
+        "Vest": 270,
+        "Syd-Øst": 135,
+        "Syd-Vest": 225,
+    }
+    azimuth = orientation_map.get(orientation, 180)
+
+    start_year = pd.to_datetime(start_date).year
+    end_year = pd.to_datetime(end_date).year
+
+    url = (
+        "https://re.jrc.ec.europa.eu/api/v5_2/seriescalc?"
+        f"lat={lat}&lon={lon}&startyear={start_year}&endyear={end_year}&"
+        f"outputformat=json&peakpower={pv_size_kw}&loss=14&angle={tilt}&aspect={azimuth}&"
+        "pvtechchoice=crystSi&mountingplace=building&pvcalculation=1"
+    )
+
+    resp = requests.get(url)
+    resp.raise_for_status()
+    data = resp.json()
+    df = pd.DataFrame(data["outputs"]["hourly"])
+    df["time"] = pd.to_datetime(df["time"].str.replace(":", ""), format="%Y%m%d%H%M")
+    df = df[(df["time"] >= pd.to_datetime(start_date)) & (df["time"] <= pd.to_datetime(end_date))]
+    df.set_index("time", inplace=True)
+    df["P"] = pd.to_numeric(df["P"])
+    return df[["P"]]
