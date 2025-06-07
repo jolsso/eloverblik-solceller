@@ -1,7 +1,8 @@
 from functions import *
 from datetime import datetime, timedelta
 import dash
-from dash import html, dcc, Input, Output, State, dash_table
+from dash import html, dcc, Input, Output, State
+
 import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd  # Assuming data is in a pandas DataFrame
@@ -244,4 +245,4 @@ def get_eloverblik_raw_data_2(selected_metering_point, start_date, end_date, tok
 #     if (n_clicks is not None) or (n_clicks is not N_CLICKS):
 #         # Here, you can includ
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=8050)
+    app.run(debug=False, host='0.0.0.0', port=8050)
