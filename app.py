@@ -2,6 +2,7 @@ from functions import *
 from datetime import datetime, timedelta
 import dash
 from dash import html, dcc, Input, Output, State
+
 import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd  # Assuming data is in a pandas DataFrame
