@@ -86,7 +86,7 @@ def get_metering_points(token):
     headers = _get_headers(token)
     resp = requests.get(metering_points_url, headers=headers)
     print(resp)
-    if (resp is None or resp.status_code is not 200):
+    if resp is None or resp.status_code != 200:
         raise Exception("Could not fetch data from Eloverblik.dk")
     meters = resp.json()['result']
     return meters
