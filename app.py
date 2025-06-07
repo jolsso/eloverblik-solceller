@@ -244,4 +244,4 @@ def get_eloverblik_raw_data_2(selected_metering_point, start_date, end_date, tok
 #     if (n_clicks is not None) or (n_clicks is not N_CLICKS):
 #         # Here, you can includ
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=8050)
+    app.run(debug=False, host='0.0.0.0', port=8050)
