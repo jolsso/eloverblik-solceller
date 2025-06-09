@@ -80,11 +80,12 @@ def start_dmi_cache_worker() -> None:
 
 
 def get_cached_date_range() -> Optional[Tuple[datetime.date, datetime.date]]:
-    """Return the minimum and maximum dates available in the cache.
+    """Return the largest contiguous range of cached weather dates.
 
-    Scans :data:`DMI_CACHE_DIR` for ``*.json`` files.  The file names are
-    expected to be in ``YYYY-MM-DD.json`` format.  If no valid cache files are
-    found, ``None`` is returned.
+    The cache directory may contain gaps if some days failed to download.
+    To avoid exposing missing dates in the UI, this function only returns a
+    range where every day has a corresponding ``YYYY-MM-DD.json`` file.  If no
+    valid cache files are found, ``None`` is returned.
     """
 
     if not os.path.isdir(DMI_CACHE_DIR):
@@ -95,12 +96,26 @@ def get_cached_date_range() -> Optional[Tuple[datetime.date, datetime.date]]:
         if not name.endswith(".json"):
             continue
         try:
-            date = datetime.strptime(os.path.splitext(name)[0], "%Y-%m-%d").date()
-            dates.append(date)
+            dates.append(datetime.strptime(os.path.splitext(name)[0], "%Y-%m-%d").date())
         except ValueError:
             continue
 
     if not dates:
         return None
 
-    return min(dates), max(dates)
+    dates.sort()
+
+    # Build contiguous ranges of dates with no missing days
+    ranges = []
+    start = prev = dates[0]
+    for current in dates[1:]:
+        if (current - prev).days == 1:
+            prev = current
+        else:
+            ranges.append((start, prev))
+            start = prev = current
+    ranges.append((start, prev))
+
+    # Pick the longest contiguous range
+    longest = max(ranges, key=lambda r: (r[1] - r[0]).days)
+    return longest
