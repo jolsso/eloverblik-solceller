@@ -22,3 +22,7 @@ Set `DMI_START_CACHE_DATE` to the first date (YYYY-MM-DD) you wish to
 cache weather observations from the DMI API. Optionally configure
 `DMI_API_KEY` and `DMI_API_URL` if needed. The application will check
 the cache every hour and download missing days automatically.
+
+The PV date picker uses the cached range starting from `DMI_START_CACHE_DATE`,
+based on the actual files in the cache, so only dates present there can be
+selected.
