@@ -1,4 +1,5 @@
 from functions import *
+from dmi_cache import start_dmi_cache_worker
 from datetime import datetime, timedelta
 import dash
 from dash import html, dcc, Input, Output, State
@@ -374,4 +375,5 @@ def simulate_pv(n_clicks, address, pv_size, orientation, start_date, end_date):
 #     if (n_clicks is not None) or (n_clicks is not N_CLICKS):
 #         # Here, you can includ
 if __name__ == '__main__':
+    start_dmi_cache_worker()
     app.run(debug=False, host='0.0.0.0', port=8050)
