@@ -15,3 +15,10 @@ docker build -t eloverblik .
 # Kør containeren på port 8050
 docker run -p 8050:8050 eloverblik
 ```
+
+### DMI cache
+
+Set `DMI_START_CACHE_DATE` to the first date (YYYY-MM-DD) you wish to
+cache weather observations from the DMI API. Optionally configure
+`DMI_API_KEY` and `DMI_API_URL` if needed. The application will check
+the cache every hour and download missing days automatically.
