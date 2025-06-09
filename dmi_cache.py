@@ -3,7 +3,7 @@ import json
 import time
 from datetime import datetime, timedelta
 from threading import Thread
-from typing import Optional
+from typing import Optional, Tuple
 
 import requests
 
@@ -77,3 +77,30 @@ def start_dmi_cache_worker() -> None:
         return
     thread = Thread(target=_worker, daemon=True)
     thread.start()
+
+
+def get_cached_date_range() -> Optional[Tuple[datetime.date, datetime.date]]:
+    """Return the minimum and maximum dates available in the cache.
+
+    Scans :data:`DMI_CACHE_DIR` for ``*.json`` files.  The file names are
+    expected to be in ``YYYY-MM-DD.json`` format.  If no valid cache files are
+    found, ``None`` is returned.
+    """
+
+    if not os.path.isdir(DMI_CACHE_DIR):
+        return None
+
+    dates = []
+    for name in os.listdir(DMI_CACHE_DIR):
+        if not name.endswith(".json"):
+            continue
+        try:
+            date = datetime.strptime(os.path.splitext(name)[0], "%Y-%m-%d").date()
+            dates.append(date)
+        except ValueError:
+            continue
+
+    if not dates:
+        return None
+
+    return min(dates), max(dates)
