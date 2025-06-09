@@ -1,5 +1,5 @@
 from functions import *
-from dmi_cache import start_dmi_cache_worker
+from dmi_cache import start_dmi_cache_worker, get_cached_date_range
 from datetime import datetime, timedelta
 import dash
 from dash import html, dcc, Input, Output, State
@@ -12,6 +12,14 @@ N_CLICKS = None
 
 df_mps = pd.DataFrame(columns=['Målepunkts ID', 'Info'])
 df_mp_data = None
+
+# Determine available weather data range from cache
+cached_range = get_cached_date_range()
+if cached_range:
+    pv_min_date, pv_max_date = cached_range
+else:
+    pv_min_date = datetime.utcnow().date() - timedelta(days=30)
+    pv_max_date = datetime.utcnow().date()
 
 # Initialize the app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -138,8 +146,10 @@ app.layout = dbc.Container([
             html.H6("Periode for solcellevejr"),
             dcc.DatePickerRange(
                 id='pv-date-picker-range',
-                start_date=datetime.now()-timedelta(days=30),
-                end_date=datetime.now(),
+                start_date=pv_min_date,
+                end_date=pv_max_date,
+                min_date_allowed=pv_min_date,
+                max_date_allowed=pv_max_date,
                 display_format="YYYY-MM-DD"
             ),
             html.Br(),
